@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+		   http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+           http://www.springframework.org/schema/data/jpa 
+           http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+	
+	<!--  Hibernate configured for a tomcat/websphere deployment using ORACLE db -->
+	
+	<!-- Package for repository loading -->
+	<jpa:repositories base-package="org.aamc.twttr.repository" />
+  	
+  	<beans profile="tomcat">   
+		<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="jpaVendorAdapter">
+		      	<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		       		<property name="database" value="ORACLE"/> 
+		  		</bean>
+		    </property>
+			<property name="packagesToScan" value="org.aamc.twttr.domain"/>
+			<property name="jpaProperties">
+				<props>
+		  		<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+		  		<prop key="hibernate.show_sql">false</prop>
+		  		<prop key="hibernate.format_sql">false</prop>		  		
+		  	</props>
+			</property>
+		</bean>
+	</beans>
+	
+  <beans profile="WebSphere"> 
+	  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+	  	<property name="jtaDataSource" ref="dataSource"/>  
+	  	<property name="jpaVendorAdapter">
+	         <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+	 	       <property name="database" value="ORACLE"/>
+	    	</bean>
+	      </property>
+	  	<property name="packagesToScan" value="org.aamc.twttr.domain"/>
+	  	<property name="jpaProperties">
+	  		<props>
+
+	    		<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+	    		<prop key="hibernate.show_sql">false</prop>
+	    		<prop key="hibernate.format_sql">false</prop>
+	    		
+               	<prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</prop>
+        		<prop key="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.WebSphereExtendedJTATransactionLookup</prop>	    		
+	    	</props>
+	  	</property>
+	  </bean>
+  </beans>  
+  
+  
+</beans>

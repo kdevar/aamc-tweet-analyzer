@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:int-twitter="http://www.springframework.org/schema/integration/twitter"
+	xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/integration
+    http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+    http://www.springframework.org/schema/task 
+	http://www.springframework.org/schema/task/spring-task-3.0.xsd
+    http://www.springframework.org/schema/integration/http
+    http://www.springframework.org/schema/integration/http/spring-integration-http-4.1.xsd
+    http://www.springframework.org/schema/integration/twitter 
+    http://www.springframework.org/schema/integration/twitter/spring-integration-twitter.xsd">
+
+
+
+	<bean id="twitterTemplate"
+		class="org.springframework.social.twitter.api.impl.TwitterTemplate" >
+		<!-- Twitter credentials go here removed for commit
+		<constructor-arg value="" />
+		<constructor-arg value="" />
+		<constructor-arg value="" />
+		<constructor-arg value="" />
+		-->
+	</bean>
+	<int:channel id="aggregationChannel"></int:channel>
+	<int-twitter:search-inbound-channel-adapter
+		id="searchAdapter" 
+		channel="sourceExtractor"
+		query="#Match2016 OR @Erasinfo OR #SOAP2016 OR #sentimentkiran"
+		twitter-template="twitterTemplate" >
+		
+		<int:poller fixed-rate="10001" time-unit="MILLISECONDS" max-messages-per-poll="50" />
+
+	</int-twitter:search-inbound-channel-adapter>
+	
+	<int:transformer input-channel="sourceExtractor" output-channel="aggregationChannel" method="convert" ref="tweetToAnalyzedTweetConverter"/>
+	
+	<int:aggregator input-channel="aggregationChannel"
+					output-channel="saveTweets"
+					correlation-strategy-expression="payload.getSentiment()"
+					release-strategy-expression="#this.size() == 20"
+					group-timeout="15000" 
+					send-partial-result-on-expiry="true"></int:aggregator>
+					
+	<int:service-activator input-channel="saveTweets" ref="localTweetService" method="saveTweets" />
+
+	<int:logging-channel-adapter id="twitterOut" level="INFO" />
+</beans>

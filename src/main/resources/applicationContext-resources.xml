@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd">
+
+	<tx:annotation-driven/>
+	
+	<bean id="persistenceExceptionTranslationPostProcessor"
+      class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+      
+	<!-- Used by the archetype, this embedded database should be removed when your projects connects to a live db. -->
+	<jdbc:embedded-database id="dataSource"/>
+	
+	<!-- WebSphere Profile, all webSphere specific items should be added into this beans profile. This profile is activated by DEFAULT and must remain that way -->
+	<!-- When your project moves to a live db, uncomment the lines below and remove this comment -->
+	<beans profile="WebSphere">
+		<tx:jta-transaction-manager/>	
+<!-- 		<jee:jndi-lookup id="dataSource" jndi-name="jdbc/ATS-"/> -->
+	</beans>
+	
+	<!-- This is a bean profile which can override items in the WebSphere profile for Tomcat like application servers. --> 
+	<!-- To activate this profile add -Dspring.profiles.active="tomcat" to your server startup, do not change the default profile setting in the web.xml -->
+	<beans profile="tomcat">
+	<!-- 
+		<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager" p:entityManagerFactory-ref="entityManagerFactory" /> -->
+		
+		<!--    <bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">  -->
+		<!--      <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />  -->
+		<!--      <property name="url" value="jdbc:oracle:thin:@dvl8-oracle-01:1521:ATSDEV" />  -->
+		<!--      <property name="username" value="" />  -->
+		<!--      <property name="password" value="" />  -->
+		<!--      <property name="maxActive" value="10" />  -->
+		<!--      <property name="maxIdle" value="1" />  -->
+		<!--      <property name="maxWait" value="1000" />  -->
+		<!--      <property name="defaultAutoCommit" value="true" />  -->
+		<!--      <property name="poolPreparedStatements" value="true" />  -->
+		<!--      <property name="maxOpenPreparedStatements" value="100" />  -->
+		<!--      <property name="validationQuery" value="SELECT 1 from DUAL"/>  -->
+		<!--    </bean>  -->
+	</beans>	
+</beans>

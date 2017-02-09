@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+		   http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+           http://www.springframework.org/schema/data/jpa 
+           http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+	<!--  Data source configuration for use by the archetype's in-memory database ONLY.
+		  Live applications will likely switch to using applicationContext-hibernate and delete this file.  -->
+	
+	<!-- Package for repository loading -->
+	<jpa:repositories base-package="org.aamc.twttr.repository" />
+  	
+  	<beans profile="tomcat">   
+		<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="jpaVendorAdapter">
+		      	<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		       		<property name="database" value="HSQL"/> 
+		  		</bean>
+		    </property>
+			<property name="packagesToScan" value="org.aamc.twttr.domain"/>
+			<property name="jpaProperties">
+				<props>
+		  		<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+		  		<prop key="hibernate.show_sql">false</prop>
+		  		<prop key="hibernate.format_sql">false</prop>
+		  		<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+		  		
+		  	</props>
+			</property>
+		</bean>
+	</beans>
+	
+  <beans profile="WebSphere"> 
+	  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+	  	<property name="jtaDataSource" ref="dataSource"/>  <!-- Note jpaDataSource instead of regular data source -->
+	  	<property name="jpaVendorAdapter">
+	         <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+	 	       <property name="database" value="HSQL"/>
+	    	</bean>
+	      </property>
+	  	<property name="packagesToScan" value="org.aamc.twttr.domain"/>
+	  	<property name="jpaProperties">
+	  		<props>
+
+	    		<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+	    		<prop key="hibernate.show_sql">false</prop>
+	    		<prop key="hibernate.format_sql">false</prop>
+	    		<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+	    		
+                <!-- For bean managed transactions, these properties allow our jpa txManager to work with WESB's JTA transactions. -->
+               	<prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</prop>
+        		<prop key="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.WebSphereExtendedJTATransactionLookup</prop>	    		
+	    	</props>
+	  	</property>
+	  </bean>
+  </beans>  
+  
+  
+</beans>
