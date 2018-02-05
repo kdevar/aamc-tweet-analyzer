@@ -20,14 +20,6 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
-/**
- * This controller sits at the root of your application and returns a non-op 200 OK when it receives
- * a GET request.  This supports heart-beat checks on the application and should NOT be removed
- * or modified.
- * 
- * @author ahisley
- *
- */
 @Controller
 @RequestMapping("")
 @Log4j
